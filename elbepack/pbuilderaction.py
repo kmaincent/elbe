@@ -252,7 +252,7 @@ class BuildAction(PBuilderAction):
         print("")
 
         try:
-            system('%s control set_pdebuild --cpuset "%d" --profile "%s" "%s" '
+            system('%s control set_pdebuild --cpuset "%d" --profile "%s" %s '
                    '"%s" "%s"' %
                    (elbe_exe, opt.cpuset, opt.profile, crossopt,
                     prjdir, tmp.fname("pdebuild.tar.gz")))
