@@ -96,7 +96,11 @@ class BuildEnv (object):
             self.fresh_debootstrap = False
             self.need_dumpdebootstrap = False
 
-        self.initialize_dirs(build_sources=build_sources)
+        host_arch = get_command_out("dpkg --print-architecture").strip().decode()
+
+        hostsdk = arch == host_arch
+
+        self.initialize_dirs(build_sources=build_sources, hostsdk=hostsdk)
         create_apt_prefs(self.xml, self.rfs)
 
     def cdrom_umount(self):
@@ -161,8 +165,15 @@ class BuildEnv (object):
         cleanup = False
         suite = self.xml.prj.text("suite")
 
+        if arch == "default":
+            arch = self.xml.text("project/buildimage/arch", key="arch")
+
+        host_arch = get_command_out("dpkg --print-architecture").strip().decode()
+
+        hostsdk = arch == host_arch
+
         primary_mirror = self.xml.get_primary_mirror(
-            self.rfs.fname('/cdrom/targetrepo'))
+            self.rfs.fname('/cdrom/targetrepo'), hostsdk=hostsdk)
 
         if self.xml.prj.has("mirror/primary_proxy"):
             os.environ["no_proxy"] = "10.0.2.2,localhost,127.0.0.1"
@@ -182,11 +193,6 @@ class BuildEnv (object):
         os.environ["DEBONF_NONINTERACTIVE_SEEN"] = "true"
 
         logging.info("Debootstrap log")
-
-        if arch == "default":
-            arch = self.xml.text("project/buildimage/arch", key="arch")
-
-        host_arch = get_command_out("dpkg --print-architecture").strip().decode()
 
         includepkgs = None
         strapcmd  = 'debootstrap '
@@ -297,8 +303,8 @@ class BuildEnv (object):
                     key = "\n".join(line.strip(" \t") for line in url.text('raw-key').splitlines()[1:-1])
                     self.add_key(key)
 
-    def initialize_dirs(self, build_sources=False):
-        mirror = self.xml.create_apt_sources_list(build_sources=build_sources)
+    def initialize_dirs(self, build_sources=False, hostsdk=False):
+        mirror = self.xml.create_apt_sources_list(build_sources=build_sources, hostsdk=hostsdk)
 
         if self.rfs.lexists("etc/apt/sources.list"):
             self.rfs.remove("etc/apt/sources.list")
