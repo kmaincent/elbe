@@ -132,6 +132,13 @@ class ElbeXML(object):
 
         return mirror.replace("LOCALMACHINE", "10.0.2.2")
 
+    def get_host_mirror(self):
+        if self.prj.has("mirror/host"):
+            m = self.prj.node("mirror")
+            mirror = m.text("host").strip() + "\n"
+
+        return mirror
+
     def get_primary_mirror(self, cdrompath, initvm=True):
         if self.prj.has("mirror/primary_host"):
             m = self.prj.node("mirror")
@@ -146,7 +153,7 @@ class ElbeXML(object):
         return replace_localmachine(mirror, initvm)
 
     # XXX: maybe add cdrom path param ?
-    def create_apt_sources_list(self, build_sources=False, initvm=True):
+    def create_apt_sources_list(self, build_sources=False, initvm=True, arch="default"):
         if self.prj is None:
             return "# No Project"
 
@@ -155,24 +162,37 @@ class ElbeXML(object):
 
         noauth = ""
         if self.prj.has("noauth"):
-            noauth = "[trusted=yes] "
+            noauth = "trusted=yes "
+
+        if arch == "default":
+            arch = self.text("project/buildimage/arch", key="arch")
+
+        arch_prj = self.text("project/buildimage/arch", key="arch")
 
         mirror = ""
+        option = "[" + noauth + " arch=" + arch +"] "
         if self.prj.has("mirror/primary_host"):
-            mirror += "deb " + noauth + self.get_primary_mirror(None)
-            mirror += " " + self.prj.text("suite") + " main\n"
-
-            if build_sources:
-                mirror += "deb-src " + noauth + self.get_primary_mirror(None)
+            if (arch != arch_prj) and self.prj.has("mirror/host"):
+                mirror += "deb " + option + self.get_host_mirror()
+            else:
+                mirror += "deb " + option + self.get_primary_mirror(None)
                 mirror += " " + self.prj.text("suite") + " main\n"
 
-            if self.prj.has("mirror/url-list"):
+
+            if build_sources:
+                if (arch != arch_prj) and self.prj.has("mirror/host"):
+                    mirror += "deb-src " + option + self.get_host_mirror()
+                else:
+                    mirror += "deb-src " + option + self.get_primary_mirror(None)
+                    mirror += " " + self.prj.text("suite") + " main\n"
+
+            if self.prj.has("mirror/url-list") and (arch==arch_prj):
                 for url in self.prj.node("mirror/url-list"):
                     if url.has("binary"):
-                        mirror += "deb " + noauth + \
-                                   url.text("binary").strip() + "\n"
+                        mirror += "deb " + option + \
+                            url.text("binary").strip() + "\n"
                     if url.has("source"):
-                        mirror += "deb-src " + noauth + \
+                        mirror += "deb-src " + option + \
                             url.text("source").strip() + "\n"
 
         if self.prj.has("mirror/cdrom"):
