@@ -511,6 +511,8 @@
       <enumeration value="buster" />
       <enumeration value="sid" />
       <enumeration value="stretch" />
+      <enumeration value="bionic" />
+      <enumeration value="focal" />
     </restriction>
   </simpleType>
 
