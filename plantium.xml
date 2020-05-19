@@ -1,0 +1,123 @@
+<ns0:RootFileSystem xmlns:ns0="https://www.linutronix.de/projects/Elbe" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" created="2009-05-20T08:50:56" revision="6" xsi:schemaLocation="https://www.linutronix.de/projects/Elbe dbsfed.xsd">
+	<project>
+		<name>ARM-rescue-image</name>
+		<version>1.0</version>
+		<description>
+			busybox based image for arm
+		</description>
+		<buildtype>armhf</buildtype>
+		<mirror>
+			<primary_host>ports.ubuntu.com</primary_host>
+			<primary_path>/ubuntu-ports</primary_path>
+			<primary_proto>http</primary_proto>
+			<host>http://archive.ubuntu.com/ubuntu bionic main universe</host>
+			<url-list>
+				<url>
+					<binary>
+						http://ports.ubuntu.com/ubuntu-ports bionic universe
+					</binary>
+					<source>
+						http://ports.ubuntu.com/ubuntu-ports bionic universe
+					</source>
+				</url>
+			</url-list>
+		</mirror>
+		<noauth />
+		<suite>bionic</suite>
+	</project>
+	<target>
+		<hostname>plantium</hostname>
+		<passwd>root</passwd>
+		<console>ttymx0,115200</console>
+		<package>
+			<name>image.tgz</name>
+		</package>
+		<images>
+			<msdoshd>
+				<!-- name of the image file -->
+				<name>sdcard.img</name>
+				<size>1000MiB</size>
+					<!-- partition layout -->
+					<partition>
+						<size>16MiB</size>
+						<label>boot</label>
+						<bootable />
+					</partition>
+					<partition>
+						<size>remain</size>
+						<label>rfs</label>
+					</partition>
+			</msdoshd>
+		</images>
+		<fstab>
+			<bylabel>
+				<!-- label needs to match with an image entry aboth -->
+				<label>rfs</label>
+				<mountpoint>/</mountpoint>
+				<fs>
+					<!-- fs type and options -->
+					<type>ext4</type>
+					<tune2fs>-j</tune2fs>
+				</fs>
+			</bylabel>
+			<bylabel>
+				<label>boot</label>
+				<mountpoint>/boot</mountpoint>
+				<fs>
+					<type>vfat</type>
+				</fs>
+			</bylabel>
+		</fstab>
+		<install-recommends />
+		<debootstrapvariant>minbase</debootstrapvariant>
+		<finetuning>
+			<!-- Set uboot environment -->
+			<command>echo "setenv image vmlinuz-4.14.98-plantium; setenv fdt_file imx6q-winmate-fa30a120a.dtb; run loadimage; run mmcboot" > /boot/uEnv.txt; mkimage -A arm -O linux -a 0 -e 0 -T script -C none -n "Boot script" -d /boot/uEnv.txt /boot/boot.scr</command>
+
+			<!-- move the kernel devictree -->
+			<cp path="/usr/lib/linux-image*/imx6q-winmate-*.dtb">/boot/</cp>
+
+			<!-- Delete documentation and unused files -->
+			<!-- shrink target image -->
+			<rm>/usr/share</rm>
+			<rm>/var/cache/apt/archives/*.deb</rm>
+			<rm>/var/cache/apt/*.bin</rm>
+			<rm>/var/lib/apt/lists/ftp*</rm>
+			<rm>var/cache/man/*</rm>
+			<rm>var/cache/elbe</rm>
+			<rm>var/cache/debconf/*</rm>
+		</finetuning>
+		<pbuilder>
+			<git>https://github.com/kmaincent/imx-gpu-viv.git</git>
+		<\pbuilder>
+		<pbuilder>
+			<git>https://github.com/kmaincent/ogre.git</git>
+		<\pbuilder>
+		<pbuilder>
+			<git>https://github.com/kmaincent/qtbase.git</git>
+		<\pbuilder>
+		<pbuilder>
+			<git>https://github.com/kmaincent/qtdeclarative.git</git>
+		<\pbuilder>
+		<pkg-list>
+			<pkg>openssh-server</pkg>
+			<pkg>systemd</pkg>
+			<pkg>udev</pkg>
+			<pkg>netbase</pkg>
+			<pkg>ntpdate</pkg>
+			<pkg>busybox</pkg>
+			<pkg>vim-tiny</pkg>
+			<pkg>nano</pkg>
+			<pkg>isc-dhcp-client</pkg>
+			<pkg>iproute2</pkg>
+			<pkg>alsa-utils</pkg>
+			<pkg>wireless-tools</pkg>
+			<pkg>imx-gpu-viv</pkg>
+			<pkg>qtbase5-examples</pkg>
+			<pkg>libogre-1.10.12</pkg>
+			<pkg>libqt5quick5</pkg>
+			<pkg>qml-module-qtquick2</pkg>
+
+		</pkg-list>
+	</target>
+</ns0:RootFileSystem>
