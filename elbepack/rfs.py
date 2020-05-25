@@ -33,6 +33,9 @@ def create_apt_prefs(xml, rfs):
     pinned_origins = []
     if xml.has('project/mirror/url-list'):
         for url in xml.node('project/mirror/url-list'):
+            if url.tag == 'host':
+                continue
+
             if not url.has('binary'):
                 continue
 

@@ -224,6 +224,15 @@
         </annotation>
       </element>
     </sequence>
+    <sequence>
+      <element name="host" type="rfs:url" minOccurs="0" maxOccurs="10">
+        <annotation>
+          <documentation>
+            describes an additional debian mirror
+          </documentation>
+        </annotation>
+      </element>
+    </sequence>
     <attribute ref="xml:base"/>
   </complexType>
 

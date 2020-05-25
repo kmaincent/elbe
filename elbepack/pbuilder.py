@@ -12,6 +12,8 @@ try:
 except ImportError:
     from urllib2 import urlopen
 
+from elbepack.shellhelper import get_command_out
+
 def pbuilder_write_config(builddir, xml):
     distname = xml.prj.text('suite')
     pbuilderrc_fname = os.path.join(builddir, "pbuilderrc")
@@ -69,7 +71,7 @@ def pbuilder_write_cross_config(builddir, xml):
 
     fp.write('#!/bin/sh\n')
     fp.write('set -e\n')
-    fp.write('MIRRORSITE="%s"\n' % xml.get_primary_mirror(False))
+    fp.write('MIRRORSITE="%s"\n' % xml.get_host_mirror().split(' ',1)[0])
     fp.write('OTHERMIRROR="deb http://127.0.0.1:8080%s/repo %s main"\n' %
              (builddir, distname))
     fp.write('BASETGZ="%s"\n' % os.path.join(builddir, 'pbuilder_cross', 'base.tgz'))
@@ -160,18 +162,40 @@ def pbuilder_write_repo_hook(builddir, xml, cross):
         '/repo/repo.pub')
 
     if xml.prj.has("mirror/primary_host"):
-        mirror += 'echo "deb ' + xml.get_primary_mirror(None) + ' ' + \
+        arch = xml.text("project/buildimage/arch", key="arch")
+
+        if cross:
+            mirror += 'echo "deb [arch=' + arch + '] ' + \
+                  xml.get_primary_mirror(None) + ' ' + \
+                  xml.prj.text("suite") + ' main" >> /etc/apt/sources.list\n'
+            if xml.prj.has("mirror/host"):
+                host_arch = get_command_out("dpkg --print-architecture").strip().decode()
+                mirror += 'echo "deb [arch=' + host_arch + '] ' + \
+                      xml.get_host_mirror() + '" >> /etc/apt/sources.list\n'
+        else:
+            mirror += 'echo "deb ' + xml.get_primary_mirror(None) + ' ' + \
                   xml.prj.text("suite") + ' main" >> /etc/apt/sources.list\n'
 
         if xml.prj.has("mirror/url-list"):
             noauth = ""
             if xml.prj.has("noauth"):
-                noauth = "[trusted=yes] "
+                noauth = "trusted=yes"
+            option = "[" + noauth + " arch=" + arch +"] "
+            option_host = "[" + noauth + " arch=" + host_arch +"] "
             for url in xml.prj.node("mirror/url-list"):
                 if url.has("binary"):
-                    mirror += 'echo "deb ' + noauth + \
-                              url.text("binary").strip() + \
-                              '" >> /etc/apt/sources.list\n'
+                    if cross:
+                        if url_tag == 'host':
+                           option_url = option_host
+                        else:
+                           option_url = option
+                        mirror += 'echo "deb ' + option_url + \
+                                  url.text("binary").strip() + \
+                                  '" >> /etc/apt/sources.list\n'
+                    else:
+                        mirror += 'echo "deb ' + option + \
+                                  url.text("binary").strip() + \
+                                  '" >> /etc/apt/sources.list\n'
                 if url.has("raw-key") and not xml.prj.has("noauth"):
                     key = "\n".join(line.strip(" \t") for line in url.text('raw-key').splitlines()[1:-1])
                     mirror = mirror_script_add_key_text(mirror, key)

@@ -72,6 +72,8 @@ def run_command(argv):
         if xml.has("./project/mirror/url-list"):
             print("additional mirrors:")
             for url in xml.node("./project/mirror/url-list"):
+                if url.tag == 'host':
+                    continu
                 if url.has("binary"):
                     print("    deb %s" % url.text("binary").strip())
                 if url.has("source"):
