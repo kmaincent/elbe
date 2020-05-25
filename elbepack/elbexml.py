@@ -171,10 +171,15 @@ class ElbeXML(object):
 
         arch_prj = self.text("project/buildimage/arch", key="arch")
 
+        if arch != arch_prj:
+            ishost = True
+        else:
+            ishost = False
+
         mirror = ""
         option = "[" + noauth + " arch=" + arch +"] "
         if self.prj.has("mirror/primary_host"):
-            if (arch != arch_prj) and self.prj.has("mirror/host"):
+            if ishost and self.prj.has("mirror/host"):
                 mirror += "deb " + option + self.get_host_mirror()
             else:
                 mirror += "deb " + option + self.get_primary_mirror(None)
@@ -182,20 +187,28 @@ class ElbeXML(object):
 
 
             if build_sources:
-                if (arch != arch_prj) and self.prj.has("mirror/host"):
+                if ishost and self.prj.has("mirror/host"):
                     mirror += "deb-src " + option + self.get_host_mirror()
                 else:
                     mirror += "deb-src " + option + self.get_primary_mirror(None)
                     mirror += " " + self.prj.text("suite") + " main\n"
 
-            if self.prj.has("mirror/url-list") and (arch==arch_prj):
+            if self.prj.has("mirror/url-list"):
                 for url in self.prj.node("mirror/url-list"):
-                    if url.has("binary"):
-                        mirror += "deb " + option + \
-                            url.text("binary").strip() + "\n"
-                    if url.has("source"):
-                        mirror += "deb-src " + option + \
-                            url.text("source").strip() + "\n"
+                    if ishost and url.tag == 'host':
+                        if url.has("binary"):
+                            mirror += "deb " + option + \
+                                url.text("binary").strip() + "\n"
+                        if url.has("source"):
+                            mirror += "deb-src " + option + \
+                                url.text("source").strip() + "\n"
+                    if not ishost and url.tag != 'host':
+                        if url.has("binary"):
+                            mirror += "deb " + option + \
+                                url.text("binary").strip() + "\n"
+                        if url.has("source"):
+                            mirror += "deb-src " + option + \
+                                url.text("source").strip() + "\n"
 
         if self.prj.has("mirror/cdrom"):
             mirror += "deb copy:///cdrom/targetrepo %s main added\n" % (
