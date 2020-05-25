@@ -69,7 +69,7 @@ def pbuilder_write_cross_config(builddir, xml):
 
     fp.write('#!/bin/sh\n')
     fp.write('set -e\n')
-    fp.write('MIRRORSITE="%s"\n' % xml.get_primary_mirror(False))
+    fp.write('MIRRORSITE="%s"\n' % xml.get_host_mirror().split(' ',1)[0])
     fp.write('OTHERMIRROR="deb http://127.0.0.1:8080%s/repo %s main"\n' %
              (builddir, distname))
     fp.write('BASETGZ="%s"\n' % os.path.join(builddir, 'pbuilder_cross', 'base.tgz'))
@@ -160,7 +160,11 @@ def pbuilder_write_repo_hook(builddir, xml, cross):
         '/repo/repo.pub')
 
     if xml.prj.has("mirror/primary_host"):
-        mirror += 'echo "deb ' + xml.get_primary_mirror(None) + ' ' + \
+        if cross:
+            mirror += 'echo "deb ' + xml.get_host_mirror().split(' ',1)[0] + ' ' + \
+                  xml.prj.text("suite") + ' main" >> /etc/apt/sources.list\n'
+        else:
+            mirror += 'echo "deb ' + xml.get_primary_mirror(None) + ' ' + \
                   xml.prj.text("suite") + ' main" >> /etc/apt/sources.list\n'
 
         if xml.prj.has("mirror/url-list"):

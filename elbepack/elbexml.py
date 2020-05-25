@@ -136,6 +136,8 @@ class ElbeXML(object):
         if self.prj.has("mirror/host"):
             m = self.prj.node("mirror")
             mirror = m.text("host").strip() + "\n"
+        else:
+            mirror = get_primary_mirror(None)
 
         return mirror
 
