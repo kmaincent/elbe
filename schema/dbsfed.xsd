@@ -206,6 +206,13 @@
         </annotation>
       </element>
     </all>
+    <attribute name="arch" type="string" use="optional">
+      <annotation>
+        <documentation>
+          Specify the architecture of the url
+        </documentation>
+      </annotation>
+    </attribute>
     <attribute ref="xml:base"/>
   </complexType>
 

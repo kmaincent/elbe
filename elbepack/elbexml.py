@@ -182,8 +182,11 @@ class ElbeXML(object):
                 mirror.append("deb-src [%s] %s %s main" %
                               (' '.join(options), pmirror, self.prj.text("suite")))
 
-            if self.prj.has("mirror/url-list") and not hostsdk:
+            if self.prj.has("mirror/url-list"):
                 for url in self.prj.node("mirror/url-list"):
+                    if 'arch' in url.et.attrib:
+                        options[1] = "arch=%s" % url.et.attrib["arch"]
+
                     if url.has("binary"):
                         mirror.append("deb [%s] %s" %
                                       (' '.join(options), url.text("binary").strip()))
