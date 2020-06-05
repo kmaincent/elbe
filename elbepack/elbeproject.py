@@ -440,7 +440,7 @@ class ElbeProject (object):
             logging.info("Unknown pbuild source: %s", p.tag)
 
         # pdebuild_build(-1) means use all cpus
-        self.pdebuild_build(cpuset=-1, profile="", cross=False)
+        self.pdebuild_build(cpuset=-1, profile="", cross=True)
 
     def build_cdroms(self, build_bin=True,
                      build_sources=False, cdrom_size=None):
@@ -514,7 +514,7 @@ class ElbeProject (object):
 
         if self.xml.has('target/pbuilder') and not skip_pbuild:
             if not os.path.exists(os.path.join(self.builddir, "pbuilder")):
-                self.create_pbuilder(cross=False)
+                self.create_pbuilder(cross=True)
             for p in self.xml.node('target/pbuilder'):
                 self.pbuild(p)
                 # the package might be needed by a following pbuild, so update
