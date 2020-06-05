@@ -715,7 +715,7 @@ class ElbeProject (object):
             if cross:
                 do('cd "%s"; dpkg-source -b .; %s '
                    'pbuilder build --host-arch %s --configfile "%s" '
-                   '--basetgz "%s" --buildresult "%s" '
+                   '--basetgz "%s" --buildresult "%s" --debbuildopts "-nc" '
                    '../*.dsc' % (
                        os.path.join(self.builddir, "pdebuilder", "current"),
                        cpuset_cmd, self.arch,
@@ -725,7 +725,7 @@ class ElbeProject (object):
                    env_add={'DEB_BUILD_PROFILES': profile.replace(",", " ")})
                 pbuilderdir = "pbuilder_cross"
             else:
-                do('cd "%s"; %s pdebuild --debbuildopts "-j%s -sa" '
+                do('cd "%s"; %s pdebuild --debbuildopts "-j%s -sa -nc" '
                    '--configfile "%s" '
                    '--use-pdebuild-internal --buildresult "%s"' % (
                        os.path.join(self.builddir, "pdebuilder", "current"),
