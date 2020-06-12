@@ -17,8 +17,7 @@ from elbepack.debianreleases import codename2suite
 from elbepack.filesystem import Filesystem
 from elbepack.pkgutils import get_dsc_size
 from elbepack.egpg import generate_elbe_internal_key, export_key, unlock_key
-from elbepack.shellhelper import CommandError, do
-
+from elbepack.shellhelper import CommandError, do, get_command_out
 
 class RepoAttributes(object):
     def __init__(self, codename, arch, components,
@@ -118,6 +117,8 @@ class RepoBase(object):
         self.fs.mkdir_p("conf")
         fp = self.fs.open("conf/distributions", "w")
 
+        host_arch = get_command_out("dpkg --print-architecture").strip().decode()
+
         need_update = False
 
         for att in self.attrs:
@@ -125,7 +126,7 @@ class RepoBase(object):
             fp.write("Label: " + self.origin + "\n")
             fp.write("Suite: " + codename2suite[att.codename] + "\n")
             fp.write("Codename: " + att.codename + "\n")
-            fp.write("Architectures: " + " ".join(att.arch) + "\n")
+            fp.write("Architectures: " + " ".join(att.arch) + " " + host_arch + "\n")
             fp.write("Components: " + " ".join(att.components.difference(
                 set(["main/debian-installer"]))) + "\n")
             fp.write("UDebComponents: " + " ".join(att.components.difference(
