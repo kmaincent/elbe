@@ -392,10 +392,14 @@ class ElbeProject (object):
         do("mkdir -p %s" % sdktargetpath)
         do("tar xJf %s/sysroot.tar.xz -C %s" %
            (self.builddir, sdktargetpath))
+
         # build host sysroot including cross compiler
-        hostsysrootpath = os.path.join(self.sdkpath, 'sysroots', 'host')
+        hostsysrootpath = os.path.join(self.builddir, 'host')
 
         self.build_host_sysroot(host_pkglist, hostsysrootpath)
+        sdkhostpath = os.path.join(self.sdkpath, "sysroots", "host")
+        do("mkdir -p %s" % sdkhostpath)
+        do("cp -a %s/. %s" % (hostsysrootpath, sdkhostpath))
 
         n = gen_sdk_scripts(triplet,
                             elfcode,
