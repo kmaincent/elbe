@@ -2402,6 +2402,14 @@
       </documentation>
     </annotation>
     <sequence>
+      <element name="ssh-key" type="rfs:string" minOccurs="0" maxOccurs="unbounded">
+        <annotation>
+          <documentation>
+            add a ssh private key to the initvm. add this before the git package.
+            support only empty passphrase.
+          </documentation>
+        </annotation>
+      </element>
       <element name="src-pkg" type="rfs:string" minOccurs="0" maxOccurs="unbounded">
         <annotation>
           <documentation>
