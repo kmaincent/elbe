@@ -14,6 +14,8 @@ import io
 import logging
 import sys
 
+from urlparse import urlparse
+
 from elbepack.shellhelper import CommandError, system, do, chroot
 
 from elbepack.elbexml import (ElbeXML, NoInitvmNode,
@@ -416,12 +418,22 @@ class ElbeProject (object):
         do("cd %s; rm sdk.txz" % self.builddir)
 
     def pbuild(self, p):
+        if p.tag == 'ssh-key':
+            key = p.text('.').strip()
+            do('[ ! -d /root/.ssh ] && mkdir /root/.ssh; echo -n "%s" > /root/.ssh/id_rsa; chmod 0600 /root/.ssh/id_rsa' % (key))
+            return
+
         self.pdebuild_init()
         src_path = os.path.join(self.builddir, "pdebuilder", "current")
 
         src_uri = p.text('.').replace("LOCALMACHINE", "10.0.2.2").strip()
         logging.info("Retrieve pbuild sources: %s",  src_uri)
         if p.tag == 'git':
+            git_url_scheme = urlparse(src_uri).scheme
+            if git_url_scheme == '':
+                git_url_hostname = urlparse("xx://" + src_uri).hostname
+                do("[ -d /root/.ssh ] && { ssh-keygen -F %s || ssh-keyscan %s >> /root/.ssh/known_hosts; }" % (git_url_hostname, git_url_hostname))
+
             do("git clone %s %s" % (src_uri, src_path))
             try:
                 do("cd %s; git reset --hard %s" %
