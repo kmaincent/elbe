@@ -2591,7 +2591,7 @@
     </sequence>
     <simpleContent>
       <extension base="rfs:string">
-        <attribute name="boolean" type="string" use="optional" />
+        <attribute name="cross" type="boolean" use="optional" />
       </extension>
     </simpleContent>
     <attribute ref="xml:base"/>
