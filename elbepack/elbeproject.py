@@ -418,7 +418,7 @@ class ElbeProject (object):
         do("cd %s; chmod +x %s" % (self.builddir, n))
         do("cd %s; rm sdk.txz" % self.builddir)
 
-    def pbuild(self, p):
+    def pbuild(self, p, cross=False):
         self.pdebuild_init()
         src_path = os.path.join(self.builddir, "pdebuilder", "current")
 
@@ -447,7 +447,7 @@ class ElbeProject (object):
             logging.info("Unknown pbuild source: %s", p.tag)
 
         # pdebuild_build(-1) means use all cpus
-        self.pdebuild_build(cpuset=-1, profile="", cross=False)
+        self.pdebuild_build(cpuset=-1, profile="", cross=cross)
 
     def build_cdroms(self, build_bin=True,
                      build_sources=False, cdrom_size=None,
@@ -570,11 +570,13 @@ class ElbeProject (object):
         self.xml.validate_apt_sources(m, self.arch)
 
         if self.xml.has('target/pbuilder') and not skip_pbuild:
+            pb = self.xml.node('target/pbuilder')
+            cross = True if pb.et.attrib['cross'] else False
             if not os.path.exists(os.path.join(self.builddir, "pbuilder")):
-                self.create_pbuilder(cross=False, noccache=False,
+                self.create_pbuilder(cross=cross, noccache=False,
                                      ccachesize="10G")
             for p in self.xml.node('target/pbuilder'):
-                self.pbuild(p)
+                self.pbuild(p, cross)
                 # the package might be needed by a following pbuild, so update
                 # the project repo that it can be installed in as
                 # build-dependency

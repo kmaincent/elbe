@@ -2589,6 +2589,11 @@
         </annotation>
       </element>
     </sequence>
+    <simpleContent>
+      <extension base="rfs:string">
+        <attribute name="revision" type="string" use="optional" />
+      </extension>
+    </simpleContent>
     <attribute ref="xml:base"/>
   </complexType>
 
