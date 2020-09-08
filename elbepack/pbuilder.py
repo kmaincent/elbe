@@ -78,7 +78,7 @@ def pbuilder_write_cross_config(builddir, xml, noccache):
 
     fp.write('#!/bin/sh\n')
     fp.write('set -e\n')
-    fp.write('MIRRORSITE="%s"\n' % xml.get_primary_mirror(False))
+    fp.write('MIRRORSITE="%s"\n' % xml.get_primary_mirror(False, hostsysroot=True))
     fp.write('OTHERMIRROR="deb http://127.0.0.1:8080%s/repo %s main"\n' %
              (builddir, distname))
     fp.write('BASETGZ="%s"\n' % os.path.join(builddir, 'pbuilder_cross', 'base.tgz'))
@@ -163,7 +163,7 @@ def pbuilder_write_repo_hook(builddir, xml, cross):
 
         f.write("apt-get update\n")
 
-def get_apt_mirrors_and_keys(builddir, xml, _cross):
+def get_apt_mirrors_and_keys(builddir, xml, cross):
 
     if xml.prj is None:
         return (["# No Project"], [])
@@ -182,15 +182,24 @@ def get_apt_mirrors_and_keys(builddir, xml, _cross):
     if xml.prj.has("mirror/primary_host"):
 
         if xml.prj.has("mirror/options"):
-            poptions = "[%s]" % ' '.join([opt.et.text.strip(' \t\n')
-                                          for opt
-                                          in xml.prj.all("mirror/options/option")])
+            poptions = [opt.et.text.strip(' \t\n')
+                        for opt
+                        in xml.prj.all("mirror/options/option")]
         else:
-            poptions = ""
+            poptions = []
 
-        pmirror = xml.get_primary_mirror(None)
+        if cross:
+            arch = xml.text("project/buildimage/sdkarch", key="sdkarch")
+        else:
+            arch = xml.text("project/buildimage/arch", key="arch")
 
-        mirrors.append("deb %s %s %s main" % (poptions, pmirror, suite))
+        poptions.append("arch=%s" % arch)
+
+        pmirror = xml.get_primary_mirror(None, hostsysroot=cross)
+
+        mirrors.append("deb [%s] %s %s main" %
+                       (' '.join(poptions),
+                        pmirror, suite))
 
         if xml.prj.has("mirror/url-list"):
 
