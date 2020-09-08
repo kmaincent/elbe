@@ -194,7 +194,7 @@ def get_apt_mirrors_and_keys(builddir, xml, cross):
         pmirror = xml.get_primary_mirror(None)
 
         mirrors.append("deb [%s] %s %s main" %
-                       (' '.join(poptions), arch,
+                       (' '.join(poptions),
                         pmirror, suite))
 
 	if cross:
@@ -205,7 +205,7 @@ def get_apt_mirrors_and_keys(builddir, xml, cross):
             pmirror = xml.get_primary_mirror(None, hostsysroot=True)
 
             mirrors.append("deb [%s] %s %s main" %
-                           (' '.join(poptions), arch,
+                           (' '.join(poptions),
                             pmirror, suite))
 
         if xml.prj.has("mirror/url-list"):
