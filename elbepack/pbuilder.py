@@ -188,18 +188,23 @@ def get_apt_mirrors_and_keys(builddir, xml, cross):
         else:
             poptions = []
 
-        if cross:
-            arch = xml.text("project/buildimage/sdkarch", key="sdkarch")
-        else:
-            arch = xml.text("project/buildimage/arch", key="arch")
+        arch = xml.text("project/buildimage/arch", key="arch")
 
-        poptions.append("arch=%s" % arch)
+        pmirror = xml.get_primary_mirror(None)
 
-        pmirror = xml.get_primary_mirror(None, hostsysroot=cross)
-
-        mirrors.append("deb [%s] %s %s main" %
-                       (' '.join(poptions),
+        mirrors.append("deb [%s %s] %s %s main" %
+                       (' '.join(poptions), arch,
                         pmirror, suite))
+
+	if cross:
+            arch = xml.text("project/buildimage/sdkarch", key="sdkarch")
+            poptions.append("arch=%s" % arch)
+
+            pmirror = xml.get_primary_mirror(None, hostsysroot=True)
+
+            mirrors.append("deb [%s %s] %s %s main" %
+                           (' '.join(poptions), arch,
+                            pmirror, suite))
 
         if xml.prj.has("mirror/url-list"):
 
