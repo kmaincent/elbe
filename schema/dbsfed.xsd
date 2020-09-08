@@ -2589,11 +2589,7 @@
         </annotation>
       </element>
     </sequence>
-    <simpleContent>
-      <extension base="rfs:string">
-        <attribute name="cross" type="boolean" use="optional" />
-      </extension>
-    </simpleContent>
+    <attribute name="cross" type="boolean" use="optional" />
     <attribute ref="xml:base"/>
   </complexType>
 
