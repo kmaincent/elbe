@@ -149,6 +149,7 @@ def pbuilder_write_repo_hook(builddir, xml, cross):
 
     with open(os.path.join(pbuilder_hook_dir, "G10elbe_apt_sources"), "w") as f:
 
+        suite = xml.prj.text("suite")
         local_http = "deb http://127.0.0.1:8080%s/repo %s main" % (builddir, suite)
         mirrors = xml.create_apt_sources_list(hostsysroot=cross)
         mirrors.insert(0, local_http)
