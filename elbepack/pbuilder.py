@@ -160,8 +160,7 @@ def pbuilder_write_repo_hook(builddir, xml, cross):
 
         # cat reads from stdin (-) and redirect (>) to
         # /etc/apt/sources.list
-        f.write("cat -> /etc/apt/sources.list <<EOF\n%s\nEOF\n" %
-                '\n'.join(mirrors).replace("LOCALMACHINE", "10.0.2.2"))
+        f.write("cat -> /etc/apt/sources.list <<EOF\n%s\nEOF\n" % mirrors)
 
         for key in keys:
             f.write("cat << EOF | apt-key add -\n%s\nEOF\n" % key)
