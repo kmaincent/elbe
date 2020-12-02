@@ -164,6 +164,12 @@ def pbuilder_write_repo_hook(builddir, xml, cross):
 
         f.write("apt-get update\n")
 
+    with open(os.path.join(pbuilder_hook_dir, "G20elbe_apt_preferences"), "w") as f:
+        f.write("#!/bin/sh\n")
+        f.write("echo 'Package: *' > /etc/apt/preferences\n")
+        f.write("echo 'Pin: origin 127.0.0.1' >> /etc/apt/preferences\n")
+        f.write("echo 'Pin-Priority: 1001' >> /etc/apt/preferences\n")
+
 def get_apt_keys(builddir, xml):
 
     if xml.prj is None:
