@@ -142,6 +142,12 @@ def pbuilder_write_repo_hook(builddir, xml, cross):
     with open(os.path.join(pbuilder_hook_dir, "H10elbe_apt_update"), "w") as f:
         f.write("#!/bin/sh\napt update\n")
 
+    with open(os.path.join(pbuilder_hook_dir, "G20elbe_apt_preferences"), "w") as f:
+        f.write("#!/bin/sh\n")
+        f.write("echo 'Package: *' > /etc/apt/preferences\n")
+        f.write("echo 'Pin: origin 127.0.0.1' >> /etc/apt/preferences\n")
+        f.write("echo 'Pin-Priority: 1001' >> /etc/apt/preferences\n")
+
     fp = open(os.path.join(pbuilder_hook_dir, "G10elbe_apt_sources"), "w")
 
     if xml.prj is None:
