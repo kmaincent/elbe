@@ -189,12 +189,10 @@ class RPCAPTCache(InChRootObject):
             if src_name not in version_dict:
                 continue
 
-            src_version = pkg.candidate.source_version
-
-            if src_version != version_dict[src_name]:
-                continue
-
-            dev_lst.append(pkg)
+            candidate = pkg.versions.get(version_dict[src_name])
+            if candidate:
+                pkg.candidate = candidate
+                dev_lst.append(pkg)
 
         mark_install(dev_lst, "-dev")
 
